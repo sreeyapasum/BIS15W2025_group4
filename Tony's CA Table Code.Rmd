@@ -68,7 +68,7 @@ alc %>%
   pivot_longer(cols = c(Male, Female),
                names_to = "Gender",
                values_to = "Deaths") %>% 
-  select(State, Effect_Duration, Effect_Category, Gender, Effect, Deaths)
+  select(State, Effect_Duration, Effect_Category, Effect, Gender, Deaths)
 
 ```
 
