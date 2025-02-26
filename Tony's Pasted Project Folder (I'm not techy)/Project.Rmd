@@ -1,0 +1,1808 @@
+---
+title: "Project"
+output: html_document
+date: "2025-02-20"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r message=FALSE, warning=FALSE}
+library("tidyverse")
+library("janitor")
+library("naniar")
+library("readxl")
+```
+
+***BEGIN TOYING WITH CA GENDER SET***
+----------------------------------------------------------
+```{r cars}
+CaG <- read_excel("CaGender.xlsx") %>% clean_names()
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+Mutate to add a "CA" column, slice sections, and join
+
+```{r}
+glimpse(CaG)
+summary(CaG) #NA=-,x,NA
+```
+
+
+```{r}
+CaG %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_california_2020_2021,
+         "Male"=x3,
+         "Female"=x4) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="CA",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(everything(), ~if_else(.=="x",NA,.)),
+         across(c(Male, Female), as.numeric),        
+         across(everything(), ~replace_na(., 0)),
+         Male = if_else(row_number() == 14, NA, Male),
+         Female = if_else(row_number() == 21, NA, Female)) %>% 
+  pivot_longer(cols = c(Male, Female),
+               names_to = "Gender",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Gender, Deaths)
+```
+***BEGIN PROJECT MATERIAL***
+---------------------------------------------------------------
+```{r}
+ALa <- read_excel("data/ALage.xlsx") %>% clean_names()
+AKa <- read_excel("data/AKage.xlsx") %>% clean_names()
+AZa <- read_excel("data/AZage.xlsx") %>% clean_names()
+ARa <- read_excel("data/ARage.xlsx") %>% clean_names()
+CAa <- read_excel("data/CAage.xlsx") %>% clean_names()
+COa <- read_excel("data/COage.xlsx") %>% clean_names()
+CTa <- read_excel("data/CTage.xlsx") %>% clean_names()
+DEa <- read_excel("data/DEage.xlsx") %>% clean_names()
+FLa <- read_excel("data/FLage.xlsx") %>% clean_names()
+GAa <- read_excel("data/GAage.xlsx") %>% clean_names()
+HIa <- read_excel("data/HIage.xlsx") %>% clean_names()
+IDa <- read_excel("data/IDage.xlsx") %>% clean_names()
+ILa <- read_excel("data/ILage.xlsx") %>% clean_names()
+INa <- read_excel("data/INage.xlsx") %>% clean_names()
+IAa <- read_excel("data/IAage.xlsx") %>% clean_names()
+KSa <- read_excel("data/KSage.xlsx") %>% clean_names()
+KYa <- read_excel("data/KYage.xlsx") %>% clean_names()
+LAa <- read_excel("data/LAage.xlsx") %>% clean_names()
+MEa <- read_excel("data/MEage.xlsx") %>% clean_names()
+MDa <- read_excel("data/MDage.xlsx") %>% clean_names()
+MAa <- read_excel("data/MAage.xlsx") %>% clean_names()
+MIa <- read_excel("data/MIage.xlsx") %>% clean_names()
+MNa <- read_excel("data/MNage.xlsx") %>% clean_names()
+MSa <- read_excel("data/MSage.xlsx") %>% clean_names()
+MOa <- read_excel("data/MOage.xlsx") %>% clean_names()
+MTa <- read_excel("data/MTage.xlsx") %>% clean_names()
+NEa <- read_excel("data/NEage.xlsx") %>% clean_names()
+NVa <- read_excel("data/NVage.xlsx") %>% clean_names()
+NHa <- read_excel("data/NHage.xlsx") %>% clean_names()
+NJa <- read_excel("data/NJage.xlsx") %>% clean_names()
+NMa <- read_excel("data/NMage.xlsx") %>% clean_names()
+NYa <- read_excel("data/NYage.xlsx") %>% clean_names()
+NCa <- read_excel("data/NCage.xlsx") %>% clean_names()
+NDa <- read_excel("data/NDage.xlsx") %>% clean_names()
+OHa <- read_excel("data/OHage.xlsx") %>% clean_names()
+OKa <- read_excel("data/OKage.xlsx") %>% clean_names()
+ORa <- read_excel("data/ORage.xlsx") %>% clean_names()
+PAa <- read_excel("data/PAage.xlsx") %>% clean_names()
+RIa <- read_excel("data/RIage.xlsx") %>% clean_names()
+SCa <- read_excel("data/SCage.xlsx") %>% clean_names()
+SDa <- read_excel("data/SDage.xlsx") %>% clean_names()
+TNa <- read_excel("data/TNage.xlsx") %>% clean_names()
+TXa <- read_excel("data/TXage.xlsx") %>% clean_names()
+UTa <- read_excel("data/UTage.xlsx") %>% clean_names()
+VTa <- read_excel("data/VTage.xlsx") %>% clean_names()
+VAa <- read_excel("data/VAage.xlsx") %>% clean_names()
+WAa <- read_excel("data/WAage.xlsx") %>% clean_names()
+WVa <- read_excel("data/WVage.xlsx") %>% clean_names()
+WIa <- read_excel("data/WIage.xlsx") %>% clean_names()
+WYa <- read_excel("data/WYage.xlsx") %>% clean_names()
+```
+
+```{r}
+ALa1 <- ALa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_alabama_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="AL",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+AKa1 <- AKa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_alaska_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="AK",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+AZa1 <- AZa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_arizona_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="AZ",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+ARa1 <- ARa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_arkansas_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="AR",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+CAa1 <- CAa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_california_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="CA",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+COa1 <- COa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_colorado_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="CO",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+CTa1 <- CTa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_connecticut_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="CT",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+DEa1 <- DEa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_delaware_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="DE",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+FLa1 <- FLa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_florida_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="FL",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+GAa1 <- GAa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_georgia_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="GA",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+HIa1 <-HIa  %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_hawaii_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="HI",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+IDa1 <- IDa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_idaho_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="ID",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+ILa1 <- ILa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_illinois_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="IL",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+INa1 <- INa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_indiana_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="IN",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+IAa1 <- IAa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_iowa_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="IA",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+KSa1 <- KSa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_kansas_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="KS",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+KYa1 <- KYa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_kentucky_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="KY",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+LAa1 <- LAa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_louisiana_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="LA",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+MEa1 <- MEa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_maine_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="ME",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+MDa1 <- MDa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_maryland_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="MD",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+MAa1 <- MAa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_massachusetts_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="MA",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+MIa1 <- MIa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_michigan_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="MI",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+MNa1 <- MNa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_minnesota_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="MN",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+MSa1 <- MSa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_mississippi_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="MS",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+MOa1 <- MOa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_missouri_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="MO",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+MTa1 <- MTa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_montana_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="MT",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+NEa1 <- NEa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_nebraska_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="NE",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+NVa1 <- NVa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_nevada_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="NV",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+NHa1 <- NHa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_new_hampshire_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="NH",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+NJa1 <- NJa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_new_jersey_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="NJ",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+NMa1 <- NMa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_new_mexico_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="NM",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+NYa1 <- NYa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_new_york_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="NY",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+NCa1 <- NCa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_north_carolina_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="NC",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+NDa1 <- NDa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_north_dakota_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="ND",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+OHa1 <- OHa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_ohio_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="OH",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+OKa1 <- OKa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_oklahoma_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="OK",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+ORa1 <- ORa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_oregon_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="OR",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+PAa1 <- PAa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_pennsylvania_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="PA",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+RIa1 <- RIa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_rhode_island_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="RI",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+SCa1 <- SCa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_south_carolina_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="SC",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+SDa1 <- SDa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_south_dakota_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="SD",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+TNa1 <- TNa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_tennessee_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="TN",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+TXa1 <- TXa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_texas_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="TX",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+UTa1 <- UTa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_utah_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="UT",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+VTa1 <- VTa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_vermont_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="VT",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+VAa1 <- VAa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_virginia_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="VA",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+WAa1 <- WAa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_washington_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="WA",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+WVa1 <- WVa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_west_virginia_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="WV",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+WIa1 <- WIa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_wisconsin_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="WI",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+```{r}
+WYa1 <- WYa %>%
+  select(-x2) %>% 
+  rename("Effect"=annual_average_for_wyoming_2020_2021,
+         "0-19"=x3,
+         "20-34"=x4,
+         "35-49"=x5,
+         "50-64"=x6,
+         "65+"=x7) %>%
+  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
+  mutate(State="WY",
+            Effect_Duration = case_when(
+            row_number() %in% c(1:40) ~ "Chronic",
+            row_number() %in% c(41:57) ~ "Acute",
+            TRUE ~ NA_character_),
+          Effect_Category = case_when(
+            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
+            row_number() %in% c(14:22) ~ "Cancer",
+            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
+            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
+            row_number() %in% c(35:40) ~ "Other Chronic Causes",
+            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
+            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
+            row_number() %in% c(44) ~ "Suicide",
+            row_number() %in% c(45:57) ~ "Other Acute Causes",
+            TRUE ~ NA_character_),
+         across(c("0-19", "20-34", "35-49", "50-64", "65+"), as.numeric),        
+         across(everything(), ~replace_na(., 0))) %>% 
+  pivot_longer(cols = c("0-19", "20-34", "35-49", "50-64", "65+"),
+               names_to = "Age",
+               values_to = "Deaths") %>% 
+  select(State, Effect_Duration, Effect_Category, Effect, Age, Deaths)
+```
+
+```{r}
+USAa <- list(ALa1,AKa1,AZa1,ARa1,CAa1,COa1,CTa1,DEa1,FLa1,GAa1,HIa1,IDa1,ILa1,INa1,IAa1,KSa1,KYa1,LAa1,MEa1,MDa1,MAa1,MIa1,MNa1,MSa1,MOa1,MTa1,NEa1,NVa1,NHa1,NJa1,NMa1,NYa1,NCa1,NDa1,OHa1,OKa1,ORa1,PAa1,RIa1,SCa1,SDa1,TNa1,TXa1,UTa1,VTa1,VAa1,WAa1,WVa1,WIa1,WYa1)
+```
+
+```{r}
+usa_data <- bind_rows(USAa)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
