@@ -32,8 +32,8 @@ You can also embed plots, for example:
 Mutate to add a "CA" column, slice sections, and join
 
 ```{r}
-glimpse(alc2)
-summary(alc2) #NA=-,x,NA
+glimpse(alc)
+summary(alc) #NA=-,x,NA
 ```
 
 
