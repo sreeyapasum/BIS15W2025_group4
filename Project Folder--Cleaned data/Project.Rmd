@@ -1788,7 +1788,9 @@ USAa <- list(ALa1,AKa1,AZa1,ARa1,CAa1,COa1,CTa1,DEa1,FLa1,GAa1,HIa1,IDa1,ILa1,IN
 usa_data <- bind_rows(USAa)
 ```
 
-
+```{r}
+write.csv(usa_data, file="usa_data.csv", row.names = F)
+```
 
 
 
