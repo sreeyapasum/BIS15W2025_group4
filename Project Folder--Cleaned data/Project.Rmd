@@ -21,59 +21,6 @@ library("naniar")
 library("readxl")
 ```
 
-***BEGIN TOYING WITH CA GENDER SET***
-----------------------------------------------------------
-```{r cars}
-CaG <- read_excel("CaGender.xlsx") %>% clean_names()
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-Mutate to add a "CA" column, slice sections, and join
-
-```{r}
-glimpse(CaG)
-summary(CaG) #NA=-,x,NA
-```
-
-
-```{r}
-CaG %>%
-  select(-x2) %>% 
-  rename("Effect"=annual_average_for_california_2020_2021,
-         "Male"=x3,
-         "Female"=x4) %>%
-  slice(13:25,28:36,39:43,46:52,55:60,65:66,69,72,76:88) %>% 
-  mutate(State="CA",
-            Effect_Duration = case_when(
-            row_number() %in% c(1:40) ~ "Chronic",
-            row_number() %in% c(41:57) ~ "Acute",
-            TRUE ~ NA_character_),
-          Effect_Category = case_when(
-            row_number() %in% c(1:13) ~ "100% Alcohol-Attributable",
-            row_number() %in% c(14:22) ~ "Cancer",
-            row_number() %in% c(23:27) ~ "Heart Disease and Stroke",
-            row_number() %in% c(28:34) ~ "Liver, Gallbladder, and Pancreas",
-            row_number() %in% c(35:40) ~ "Other Chronic Causes",
-            row_number() %in% c(41:42) ~ "Alcohol-Related Poisonings",
-            row_number() %in% c(43) ~ "Motor Vehicle Traffic Crashes",
-            row_number() %in% c(44) ~ "Suicide",
-            row_number() %in% c(45:57) ~ "Other Acute Causes",
-            TRUE ~ NA_character_),
-         across(everything(), ~if_else(.=="x",NA,.)),
-         across(c(Male, Female), as.numeric),        
-         across(everything(), ~replace_na(., 0)),
-         Male = if_else(row_number() == 14, NA, Male),
-         Female = if_else(row_number() == 21, NA, Female)) %>% 
-  pivot_longer(cols = c(Male, Female),
-               names_to = "Gender",
-               values_to = "Deaths") %>% 
-  select(State, Effect_Duration, Effect_Category, Effect, Gender, Deaths)
-```
 ***BEGIN PROJECT MATERIAL***
 ---------------------------------------------------------------
 ```{r}
@@ -1785,7 +1732,8 @@ USAa <- list(ALa1,AKa1,AZa1,ARa1,CAa1,COa1,CTa1,DEa1,FLa1,GAa1,HIa1,IDa1,ILa1,IN
 ```
 
 ```{r}
-usa_data <- bind_rows(USAa)
+usa_data <- bind_rows(USAa) %>% 
+  mutate(across(where(is.character), ~gsub("[*†‡§|¶]","",.)))
 ```
 
 ```{r}
