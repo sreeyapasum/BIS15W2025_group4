@@ -1,0 +1,146 @@
+---
+title: "Shiny App"
+output: html_document
+date: "2025-03-11"
+---
+# SHINY APP (Antony and Bryan)
+
+```{r, eval=F, echo=T}
+#install.packages(c("shiny", "shinythemes", "ggplot2", "ggplot", "ggmap", "dplyr", "readr"))
+library(shiny)
+library(shinythemes)
+library(ggplot2)
+library(ggmap)
+library(dplyr)
+library(readr)
+library(shinydashboard)
+# Load the data
+data <- read_csv("usa_data.csv")
+map_data <- read_csv("usa_map.csv")
+
+# Define UI
+ui <- dashboardPage(
+  
+  dashboardHeader(title = "U.S. Alcohol Related Deaths", titleWidth = 400),
+  
+  dashboardSidebar(
+    width = 300,
+    sidebarMenu(
+      selectInput("state", "Select State", choices = c("All", unique(data$State))),
+      selectInput("effect_duration", "Select Effect Duration", choices = c("All", unique(data$Effect_Duration))),
+      selectInput("effect_category", "Select Effect Category", choices = c("All", unique(data$Effect_Category))),
+      selectInput("effect", "Select Effect", choices = c("All", unique(data$Effect)))
+    ),
+  hr(),
+  helpText("Centers for Disease Control and Prevention. Alcohol Related Disease Impact (ARDI) application, 2024. Available at www.cdc.gov/ARDI.")),
+    
+    dashboardBody(
+    tags$style(HTML("
+  .main-sidebar, .main-sidebar .sidebar {
+    background-color: #F8F9FA !important;
+  }
+  .sidebar-menu a {
+    color: black !important;
+    font-weight: bold;
+  }
+  .sidebar-menu a:hover {
+    background-color: #DCDCDC !important;
+  }
+
+  /* Fix select input text & alignment */
+  .shiny-input-container {
+    color: black !important;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .selectize-input, .selectize-dropdown {
+    background-color: white !important;
+    color: black !important;
+  }
+  .form-control {
+    background-color: white !important;
+    color: black !important;
+    font-size: 14px;
+  }
+  .sidebar-menu {
+    padding-left: 10px;
+  }
+  .selectize-input, .shiny-input-container {
+    width: 100% !important; 
+    text-align: left !important; 
+"))
+,
+  fluidRow(
+    column(6, plotOutput("histogram")), 
+    column(6, plotOutput("boxplot"))
+  ),
+  fluidRow(
+    column(12, plotOutput("bubbleplot"))
+  )
+)
+)
+
+# Define server logic
+server <- function(input, output,session) {
+  
+  session$onSessionEnded(stopApp)
+  
+  filtered_data <- reactive({
+    df <- data
+    
+    if(input$state != "All") {
+      df <- df %>% filter(State == input$state)
+    }
+    if(input$effect_duration != "All") {
+      df <- df %>% filter(Effect_Duration == input$effect_duration)
+    }
+    if(input$effect_category != "All") {
+      df <- df %>% filter(Effect_Category == input$effect_category)
+    }
+    if(input$effect != "All") {
+      df <- df %>% filter(Effect == input$effect)
+    }
+    
+    df
+  })
+
+ 
+  output$histogram <- renderPlot({
+    ggplot(filtered_data(), aes(x = factor(Age), y = Deaths)) +
+      geom_bar(stat = "identity", fill = "steelblue") +
+      labs(title = "Deaths by Age Group",
+           x = "Age Group",
+           y = "Number of Deaths") +
+      theme_minimal() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))})
+    
+    output$boxplot <- renderPlot({
+      ggplot(filtered_data(), aes(x = Age, y = Deaths)) +
+        geom_boxplot(fill = "steelblue") +
+        labs(title = "Deaths by Age Group",
+           x = "Age Group",
+           y = "Number of Deaths (log10)") +
+        theme_minimal() +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+        scale_y_log10()})
+    
+    output$bubbleplot <- renderPlot({
+      ggplot(data = filtered_data(),aes(x = Age, y = Deaths, size = Effect_Duration, color = Effect_Duration)) +
+      geom_point(alpha = 0.7) +
+        scale_size_manual(values = c("Chronic" = 4, "Acute" = 2)) +
+        labs(title = "Alcohol-Related Deaths by Age (Bubble Chart)",
+             x = "Age Group",
+             y = "Number of Deaths",
+             size = "Effect Duration") +
+        theme_minimal()+
+        theme(axis.text.x = element_text(hjust=1))+
+        theme(plot.title=element_text(size=rel(1.5),hjust=0.5))})
+}
+
+# Run the app
+shinyApp(ui, server)
+
+library(rsconnect)
+deployApp()
+
+```

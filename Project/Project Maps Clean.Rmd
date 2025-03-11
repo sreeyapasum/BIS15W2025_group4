@@ -1,0 +1,121 @@
+---
+title: "Project Maps + More - Bryan"
+output: html_document
+date: "2025-03-11"
+---
+### Heat Maps of the United States
+
+#### Total Deaths
+
+```{r}
+#install.packages(c("ggplot2", "sf", "tidyverse", "ggmap", "maps", "mapdata"))
+library(ggplot2)
+library(sf)
+library(tidyverse)
+library(ggmap)
+library(maps)
+library(mapdata)
+library(janitor)
+library(naniar)
+```
+
+```{r}
+register_stadiamaps("aa2920a3-11e4-475e-82c1-18552c632fd2", write = FALSE)
+```
+
+```{r}
+state_map <- map_data("state")
+state_map
+```
+
+
+```{r}
+state_names <- data.frame(State = state.abb,
+                          region = tolower(state.name))
+```
+
+```{r}
+state_deaths <- left_join(usa_data, state_names, by = "State")
+```
+
+```{r}
+total_deaths_per_state <- state_deaths %>% 
+  group_by(region) %>% 
+  summarize(total_deaths = sum(Deaths))
+```
+
+```{r}
+usa_map <- left_join(state_map, total_deaths_per_state, by = "region")
+```
+
+```{r}
+us_bbox <- c(left = -125, bottom = 25, right = -66, top = 50)
+us_map <- get_stadiamap(us_bbox, zoom =5, maptype= "stamen_toner_lite")
+ggmap(us_map)
+```
+
+```{r}
+ggmap(us_map)+
+  geom_polygon(data = usa_map,
+               aes(x = long, y= lat, group = group, fill = total_deaths),
+               color = "black", size = 0.3, alpha = 0.7)+
+  scale_fill_gradient(low = "blue", high = "red")+
+  labs(title = "Alcohol-Related Deaths by State",
+     x = "Longitude",
+     y = "Latitude") +
+  theme(axis.text.x = element_text(hjust=1))+
+  theme(plot.title=element_text(size=rel(1.5),hjust=0.5))
+```
+
+#### Deaths By Effect Duration (Chronic or Acute)
+
+```{r}
+us_data_State_total_deaths_by_effect_duration <- usa_data %>% 
+  group_by(Effect_Duration, State) %>% 
+  summarize(total_death_by_effect_duration = sum(Deaths)) %>% 
+  select(Effect_Duration, State, total_death_by_effect_duration)
+
+effect_duration_deaths <- left_join(us_data_State_total_deaths_by_effect_duration, state_names, by = "State")
+
+state_center <- state_map %>%
+  group_by(region) %>%
+  summarize(center_long = mean(long, na.rm = TRUE),
+            center_lat = mean(lat, na.rm = TRUE), .groups = "drop")
+
+u_map <- left_join(effect_duration_deaths, state_center, by = "region")
+
+us_bbox <- c(left = -125, bottom = 25, right = -66, top = 50)
+us_map <- get_stadiamap(us_bbox, zoom =5, maptype= "stamen_toner_lite")
+ggmap(us_map)
+
+ggmap(us_map)+
+  geom_polygon(data = state_map,
+               aes(x = long, y= lat, group = group), fill = "gray", color = "black", size = 0.3, alpha = 0.7)+
+  geom_point(data = u_map,
+             aes(x=center_long, y=center_lat, size = total_death_by_effect_duration, color= Effect_Duration),
+             position = position_jitter(width = 0.5, height = 0.5),
+             alpha = 0.7,  stroke = 1, shape = 21, fill = "white", na.rm=TRUE)+
+  scale_size_continuous(range = c(2,10))+
+  scale_color_manual(values = c("Chronic" = "red", "Acute" = "blue"))+
+  labs(title = "Alcohol-Related Deaths by State by Effect Duration",
+     x = "Longitude",
+     y = "Latitude") +
+  theme(axis.text.x = element_text(hjust=1))+
+  theme(plot.title=element_text(size=rel(1.5),hjust=0.5))
+```
+##### Bubble Plot of Alcohol-Related Deaths by Age
+
+```{r}
+usa_data %>% 
+  ggplot(aes(x = Age, y = Deaths, size = Effect_Duration, color = Effect_Duration)) +
+  geom_point(alpha = 0.7) +
+  scale_size_manual(values = c("Chronic" = 4, "Acute" = 2)) +
+  labs(title = "Alcohol-Related Deaths by Age (Bubble Chart)",
+       x = "Age Group",
+       y = "Number of Deaths",
+       size = "Effect Duration") +
+  theme_minimal()+
+  theme(axis.text.x = element_text(hjust=1))+
+  theme(plot.title=element_text(size=rel(1.5),hjust=0.5))
+```
+

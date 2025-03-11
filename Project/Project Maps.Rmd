@@ -1,0 +1,221 @@
+---
+title: "Project- Bryan"
+output: html_document
+date: "2025-03-06"
+---
+
+### This Document was just used to toy around with the data.
+
+```{r}
+#install.packages("naniar")
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(naniar)
+```
+
+### Inputting Regions per state.
+```{r}
+states <- data.frame(
+  state = c("AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI","SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"))
+```
+
+```{r}
+  regions = list(Northeast = c("PA", "MD", "DE", "NJ", "NY", "CT", "RI", "MA", "NH", "VT", "ME"),
+  Southeast = c("AR", "LA", "MS", "AL", "GA", "FL", "SC", "TN", "NC", "KY", "VA", "WV"),
+  Midwest = c("ND", "SD", "NE", "KS", "MN", "IA", "MO", "IL", "WI", "IN", "OH", "MI"),
+  Southwest = c("AZ", "NM", "TX", "OK"),
+  West = c("AK", "HI", "CA", "OR", "WA", "NV", "ID", "MT", "WY", "CO", "UT"))
+```
+
+```{r}
+state_regions <- map_df(regions, ~data.frame(state = .x), .id = "region")
+```
+
+```{r}
+usa_regions <- 
+  full_join(usa_data, state_regions, by = "state")
+```
+
+### Plotting By State
+
+```{r}
+usa_regions <- usa_data %>% clean_names()
+```
+
+
+#### Total Deaths Per State
+```{r}
+usa_regions %>% 
+  select(state,deaths) %>% 
+  group_by(state) %>% 
+  mutate(total_deaths = sum(deaths))
+```
+
+```{r}
+usa_regions %>% 
+  select(state,deaths) %>% 
+  group_by(state) %>% 
+  summarize(total_deaths = sum(deaths)) %>% 
+  ggplot(aes(x=reorder(state, total_deaths), y= total_deaths, fill=state))+
+  geom_bar(stat="identity")+
+  coord_flip()
+```
+
+### Total Deaths Per Cause
+
+```{r}
+usa_regions %>% 
+  ggplot(aes(x=region, y=deaths))+
+  geom_bar(stat = "identity")
+```
+```{r}
+usa_regions %>% 
+  mutate(age = as.factor(age)) %>% 
+  ggplot(aes(x=age, y=deaths))+
+  geom_bar(stat = "identity")
+```
+### Heat Map of the United States
+```{r}
+#install.packages("ggplot2")
+install.packages("maps")
+library(ggplot2)
+library(maps)
+```
+
+```{r}
+state_map <- map_data("state")
+state_map
+```
+```{r}
+state_map <- state_map %>% 
+  rename("State" = "region")
+```
+
+```{r}
+states_full <- c(alabama = "AL", alaska = "AK", arizona = "AZ", arkansas = "AR", california = "CA", colorado = "CO", connecticut = "CT", delaware = "DE", florida = "FL", georgia = "GA", hawaii = "HI", idaho = "ID", illinois = "IL", indiana = "IN", iowa = "IA", kansas = "KS", kentucky = "KY", louisiana = "LA", maine = "ME", maryland = "MD", massachusetts = "MA", michigan = "MI", minnesota = "MN", mississippi = "MS", missouri = "MO", montana = "MT", nebraska = "NE", nevada = "NV", "new hampshire" = "NH", "new jersey" = "NJ", "new mexico" = "NM", "new york" = "NY", "north carolina" = "NC", "north dakota" = "ND", ohio = "OH", oregon = "OR", pennsylvania = "PA", "rhode island" = "RI", "south carolina" = "SC", "south dakota" = "SD", tennessee = "TN", texas = "TX", utah = "UT", vermont = "VT", virginia = "VA", washington = "WA", "west virginia" = "WV", wisconsin = "WI", wyoming = "WY")
+```
+
+```{r}
+state_map$State <- as.character(states_full[state_map$State])
+```
+
+```{r}
+usa <- 
+  left_join(usa)
+```
+
+
+
+```{r}
+#install.packages(c("ggplot2", "sf", "tidyverse", "ggmap", "maps", "mapdata"))
+library(ggplot2)
+library(sf)
+library(tidyverse)
+library(ggmap)
+library(maps)
+library(mapdata)
+library(janitor)
+library(naniar)
+```
+
+```{r}
+register_stadiamaps("aa2920a3-11e4-475e-82c1-18552c632fd2", write = FALSE)
+```
+
+```{r}
+state_map <- map_data("state")
+state_map
+```
+
+```{r}
+state_names <- data.frame(State = state.abb,
+                          region = tolower(state.name))
+```
+
+```{r}
+state_deaths <- left_join(usa_data, state_names, by = "State")
+```
+
+```{r}
+total_deaths_per_state <- state_deaths %>% 
+  group_by(region) %>% 
+  summarize(total_deaths = sum(Deaths))
+```
+
+```{r}
+usa_map <- left_join(state_map, total_deaths_per_state, by = "region")
+```
+
+```{r}
+us_bbox <- c(left = -125, bottom = 25, right = -66, top = 50)
+us_map <- get_stadiamap(us_bbox, zoom =5, maptype= "stamen_toner_lite")
+ggmap(us_map)
+```
+```{r}
+us<- usa_map %>% 
+  group_by(region) %>% 
+  mutate(Total_Deaths = sum(Deaths))
+```
+
+```{r}
+usa_map<- usa_map %>% 
+  group_by(State) %>% 
+  mutate(total_deaths = sum(Deaths))
+```
+
+```{r}
+ggmap(us_map)+
+  geom_polygon(data = usa_map,
+               aes(x = long, y= lat, group = group, fill = total_deaths),
+               color = "black", size = 0.3, alpha = 0.7)+
+  scale_fill_gradient(low = "blue", high = "red")+
+  labs(title = "Alcohol-Related Deaths by State",
+     x = "Longitude",
+     y = "Latitude") +
+  theme(axis.text.x = element_text(hjust=1))+
+  theme(plot.title=element_text(size=rel(1.5),hjust=0.5))
+
+```
+
+```{r}
+ggmap(us_map)+
+  geom_polygon(data = usa_map,
+               aes(x = long, y= lat, group = group, fill = total_deaths),
+               color = "black", size = 0.3, alpha = 0.7)+
+  scale_fill_gradient(low = "blue", high = "red")+
+  labs(title = "Alcohol-Related Deaths by State",
+     x = "Longitude",
+     y = "Latitude") +
+  theme(axis.text.x = element_text(hjust=1))+
+  theme(plot.title=element_text(size=rel(1.5),hjust=0.5))
+
+```
+
+
+
+
+
+```{r}
+write.csv(usa_map, file="usa_map.csv", row.names = FALSE)
+```
+
+
+```{r}
+
+```
+
+```{r}
+usa_data %>% 
+  ggplot(aes(x = Age, y = Deaths, size = Effect_Duration, color = Effect_Duration)) +
+  geom_point(alpha = 0.7) +
+  scale_size_manual(values = c("Chronic" = 4, "Acute" = 2)) +
+  labs(title = "Alcohol-Related Deaths by Age (Bubble Chart)",
+       x = "Age Group",
+       y = "Number of Deaths",
+       size = "Effect Duration") +
+  theme_minimal()+
+  theme(axis.text.x = element_text(hjust=1))+
+  theme(plot.title=element_text(size=rel(1.5),hjust=0.5))
+```
+
