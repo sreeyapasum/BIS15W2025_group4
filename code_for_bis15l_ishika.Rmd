@@ -1,0 +1,71 @@
+---
+title: "bis 15l project R"
+author: "ishika"
+date: "2025-03-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+usa_data<- read.csv("/Users/ishikakaushik/Desktop/bis15l project/usa_data.csv")
+```
+
+## Install Package and Load Library
+
+```{r pressure, echo=FALSE}
+
+library(ggplot2)
+```
+
+```{r}
+# Create the bar plot and smooth line plot using ggplot2
+ggplot(usa_data, aes(x = Age, y = Deaths, fill = Effect_Duration)) +  # set x-axis (Age), y-axis (Deaths), fill color by Effect_Duration
+  geom_col(position = "dodge", width = 0.7) +  # bar plot with side-by-side bars
+  
+  # added a dashed line showing trends across age groups for each Effect_Duration group
+  geom_smooth(aes(group = Effect_Duration, color = Effect_Duration),
+              method = "lm",           # linear model (trend line)
+              se = FALSE,              # se=FALSE
+              linetype = "dashed",     # dashed line style
+              size = 1.2) +            # line thickness
+  
+  # faceting
+  facet_wrap(~ Effect_Duration) +
+  
+  # customize plot titles and axis labels
+  labs(
+    title = "Age Group Death Distribution by Effect Duration",  
+    subtitle = "Weighted by total deaths per age group",        
+    x = "Age Group",                                            
+    y = "Total Deaths"                                          
+  ) +
+  
+  # theme
+  theme_minimal(base_size = 14) +
+  
+  # better aesthetics
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),  
+    axis.text.y = element_text(size = 12),                         
+    plot.title = element_text(face = "bold", size = 18),           
+    plot.subtitle = element_text(size = 14),                       
+    legend.position = "none"                                       # hide legend (since facets already label groups)
+  ) +
+  
+  # applied color palettes to bars and smooth lines for better visual differentiation
+  scale_fill_brewer(palette = "Set2") +   # Softer colors for bar fill
+  scale_color_brewer(palette = "Dark2")   # Darker colors for trend lines
+
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
