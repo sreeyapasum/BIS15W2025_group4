@@ -1,0 +1,74 @@
+---
+title: "Graphs"
+output: html_document
+date: "2025-03-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+getwd()
+```
+
+```{r}
+usa_data <- read_csv("data/usa_data.csv")
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+usa_data %>% 
+  State = rep(c("CA", "FL", "TX", "NY"), each = 4),
+  Age_Group = rep(c("0-34", "35-49", "50-64", "65+"), times = 4),
+  Effect_Category = rep(c("Poisoning", "Liver & Pancreas", "Heart Disease", "100% Alcohol-Attributable"), times = 4),
+  Deaths = c(500, 1200, 1366, 2203, 300, 900, 1315, 1800, 
+             400, 1000, 884, 1600, 250, 825, 600, 1400)
+)
+
+pastel_colors <- c("Poisoning" = "lightblue", 
+                   "Liver & Pancreas" = "steelblue",
+                   "Heart Disease" = "blue",  # Soft blue
+                   "100% Alcohol-Attributable" = "darkblue")  
+
+ggplot(data, aes(x = Age_Group, y = Deaths, fill = Effect_Category)) +
+  geom_bar(stat = "identity", position = "stack") +
+  facet_wrap(~ State) +  
+  labs(title = "Alcohol-Related Deaths by Effect Category and Age Group",
+       x = "Age Group", 
+       y = "Number of Deaths",
+       fill = "Effect Category") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+usa_data %>%
+  State = c("CA", "FL", "NY", "TX"),
+  Age_Group = c("65+", "65+", "50-64", "65+"),
+  Effect_Category = c("Heart Disease and Stroke", "Liver, Gallbladder, and Pancreas", 
+                      "100% Alcohol-Attributable", "Cancer", "Motor Vehicle Traffic Crashes",
+                      "Suicide", "Other Acute Causes") %>% 
+
+ggplot(data, aes(x = State, y = Deaths, fill = Age_Group)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Highest Alcohol-Related Deaths by Age Group (CA, FL, TX, NY)",
+       x = "State", 
+       y = "Number of Deaths",
+       fill = "Age Group") +
+  theme_minimal() +
+  geom_text(aes(label = Deaths), vjust = -0.5, size = 5) +
+  scale_fill_manual(values = c("65+" = "lightblue", "50-64" = "steelblue"))
+
+```
+
