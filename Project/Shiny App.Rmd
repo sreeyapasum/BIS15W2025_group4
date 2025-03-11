@@ -71,11 +71,11 @@ ui <- dashboardPage(
 "))
 ,
   fluidRow(
-    column(6, plotOutput("histogram")), 
-    column(6, plotOutput("boxplot"))
+   box(column(6, plotOutput("histogram"))), 
+    box(column(6, plotOutput("boxplot")))
   ),
   fluidRow(
-    column(12, plotOutput("bubbleplot"))
+    box(column(12, plotOutput("bubbleplot")))
   )
 )
 )
