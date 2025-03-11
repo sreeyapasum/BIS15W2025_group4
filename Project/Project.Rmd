@@ -19,8 +19,11 @@ library("tidyverse")
 library("janitor")
 library("naniar")
 library("readxl")
+library("shiny")
+library("dplyr")
+library("ggplot2")
+library("readr")
 ```
-
 ***BEGIN PROJECT MATERIAL***
 ---------------------------------------------------------------
 ```{r}
@@ -1733,7 +1736,7 @@ USAa <- list(ALa1,AKa1,AZa1,ARa1,CAa1,COa1,CTa1,DEa1,FLa1,GAa1,HIa1,IDa1,ILa1,IN
 
 ```{r}
 usa_data <- bind_rows(USAa) %>% 
-  mutate(across(where(is.character), ~gsub("[*†‡§|¶]","",.)))
+  mutate(across(where(is.character),~gsub("[*†‡§|¶]","",.)))
 ```
 
 ```{r}
@@ -1741,10 +1744,66 @@ write.csv(usa_data, file="usa_data.csv", row.names = F)
 ```
 
 
+SHINY APP DRAFT
 
+```{r, eval=F, echo=T}
+# Load the data
+data <- read_csv("usa_data.csv")
 
+# Define UI
+ui <- fluidPage(
+  titlePanel("USA Data Visualization"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("state", "Select State", choices = c("All", unique(data$State))),
+      selectInput("effect_duration", "Select Effect Duration", choices = c("All", unique(data$Effect_Duration))),
+      selectInput("effect_category", "Select Effect Category", choices = c("All", unique(data$Effect_Category))),
+      selectInput("effect", "Select Effect", choices = c("All", unique(data$Effect)))
+    ),
+    
+    mainPanel(
+      plotOutput("histogram")
+    )
+  )
+)
 
+# Define server logic
+server <- function(input, output) {
+  
+  filtered_data <- reactive({
+    df <- data
+    
+    if(input$state != "All") {
+      df <- df %>% filter(State == input$state)
+    }
+    if(input$effect_duration != "All") {
+      df <- df %>% filter(Effect_Duration == input$effect_duration)
+    }
+    if(input$effect_category != "All") {
+      df <- df %>% filter(Effect_Category == input$effect_category)
+    }
+    if(input$effect != "All") {
+      df <- df %>% filter(Effect == input$effect)
+    }
+    
+    df
+  })
+  
+  output$histogram <- renderPlot({
+    ggplot(filtered_data(), aes(x = Age, y = Deaths)) +
+      geom_bar(stat = "identity", fill = "steelblue") +
+      labs(title = "Deaths by Age Group",
+           x = "Age Group",
+           y = "Number of Deaths") +
+      theme_minimal() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  })
+}
 
+# Run the app
+shinyApp(ui, server)
+```
 
 
 
