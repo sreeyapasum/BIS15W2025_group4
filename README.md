@@ -1,4 +1,4 @@
-🍷 Alcohol Effects Analysis 🍻
+🍸 Alcohol Effects Analysis 🥂
 
 📌 Project Overview
 
