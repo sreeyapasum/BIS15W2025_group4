@@ -30,3 +30,5 @@ We utilized data from the CDC Alcohol-Related Disease Impact (ARDI) tool (link t
 
 🛠️ Technologies Used
    - R
+
+Take a look at out Shiny APP! You can find it in the projects folder. It allows you to analyze the amounts of alcohol related dates by state!
