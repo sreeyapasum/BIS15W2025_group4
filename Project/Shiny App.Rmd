@@ -15,8 +15,7 @@ library(dplyr)
 library(readr)
 library(shinydashboard)
 # Load the data
-data <- read_csv("usa_data.csv")
-map_data <- read_csv("usa_map.csv")
+data <- read_csv("data/usa_data.csv")
 
 # Define UI
 ui <- dashboardPage(
@@ -139,8 +138,4 @@ server <- function(input, output,session) {
 
 # Run the app
 shinyApp(ui, server)
-
-library(rsconnect)
-deployApp()
-
 ```

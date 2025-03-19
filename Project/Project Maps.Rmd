@@ -33,8 +33,12 @@ state_regions <- map_df(regions, ~data.frame(state = .x), .id = "region")
 ```
 
 ```{r}
-usa_regions <- 
-  full_join(usa_data, state_regions, by = "state")
+usa_data <- read.csv("data/usa_data.csv")
+```
+
+```{r}
+#usa_regions <- 
+  #full_join(usa_data, state_regions, by = "region")
 ```
 
 ### Plotting By State
@@ -66,7 +70,7 @@ usa_regions %>%
 
 ```{r}
 usa_regions %>% 
-  ggplot(aes(x=region, y=deaths))+
+  ggplot(aes(x=state, y=deaths))+
   geom_bar(stat = "identity")
 ```
 ```{r}
@@ -99,12 +103,6 @@ states_full <- c(alabama = "AL", alaska = "AK", arizona = "AZ", arkansas = "AR",
 ```{r}
 state_map$State <- as.character(states_full[state_map$State])
 ```
-
-```{r}
-usa <- 
-  left_join(usa)
-```
-
 
 
 ```{r}
@@ -154,14 +152,12 @@ ggmap(us_map)
 ```
 ```{r}
 us<- usa_map %>% 
-  group_by(region) %>% 
-  mutate(Total_Deaths = sum(Deaths))
+  group_by(region)
 ```
 
 ```{r}
 usa_map<- usa_map %>% 
-  group_by(State) %>% 
-  mutate(total_deaths = sum(Deaths))
+  group_by(region)
 ```
 
 ```{r}
